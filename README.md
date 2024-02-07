@@ -1,66 +1,13 @@
-## Foundry
+## Comparison of delegatecall revert handling in OpenZeppelin and Uniswap's v3-periphery
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+The Multicall contract from Uniswap's v3-periphery relies on bad revert handling. It incorrectly shifts the pointer of returned data array by 4, which causes the length to be the concatenation of the actual length and the first 4 bytes of the revert data, which is usually the 4 byte Error signature.
 
-Foundry consists of:
+Although the current solidity implementation of abi.decode is able to ignore the length given and parse the string correctly, the reliance of abi.decode should not be the determining factor of whether the code is secure or not.
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+Furthermore, OpenZeppelin's library is able to bubble up custom errors correctly thus should be preferred over the Uniswap's implementation.
 
-## Documentation
+### Relevant links
 
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
-```shell
-$ forge build
-```
-
-### Test
-
-```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+https://web.archive.org/web/20240207202615/https://medium.com/@0xdeadbeef0x/the-double-edged-sword-of-abi-decode-f81529e62bcc
+https://medium.com/@0xdeadbeef0x/the-double-edged-sword-of-abi-decode-f81529e62bcc
+https://github.com/Uniswap/v3-periphery/issues/254
